@@ -1,0 +1,22 @@
+version: '3.1'
+services:
+  web:
+    image: odoo:{{ odoo_version }}
+    depends_on:
+      - db
+    ports:
+      - "{{ odoo_http_port }}:8069"
+    volumes:
+      - {{ odoo_data_dir }}/odoo:/var/lib/odoo
+    environment:
+      - HOST=db
+      - USER=odoo
+      - PASSWORD={{ postgres_password }}
+  db:
+    image: postgres:{{ postgres_version }}
+    volumes:
+      - {{ odoo_data_dir }}/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=odoo
+      - POSTGRES_PASSWORD={{ postgres_password }}

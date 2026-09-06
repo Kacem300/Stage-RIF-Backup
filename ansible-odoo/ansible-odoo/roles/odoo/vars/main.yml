@@ -1,0 +1,6 @@
+---
+odoo_version: "18.0"
+postgres_version: "15"
+odoo_data_dir: /mnt/odoo_data
+odoo_http_port: 8069
+postgres_password: "{{ lookup('password', '/dev/null chars=ascii_letters,digits length=16') }}"

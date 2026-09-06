@@ -1,0 +1,43 @@
+---
+- name: Création du répertoire de données
+  file:
+    path: "{{ odoo_data_dir }}"
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+
+- name: Copie du fichier docker-compose.yml
+  template:
+    src: docker-compose.yml.j2
+    dest: "{{ odoo_data_dir }}/docker-compose.yml"
+    owner: ubuntu
+    group: ubuntu
+    mode: 0644
+
+- name: Téléchargement des images Docker (pull)
+  command: docker compose -f {{ odoo_data_dir }}/docker-compose.yml pull
+  register: pull_result
+  changed_when: "'Downloaded' in pull_result.stdout or 'newer' in pull_result.stdout"
+
+- name: Lancement des conteneurs
+  command: docker compose -f {{ odoo_data_dir }}/docker-compose.yml up -d
+  register: up_result
+  changed_when: "'Started' in up_result.stdout or 'Creating' in up_result.stdout"
+
+- name: Vérification que les conteneurs tournent
+  command: docker ps --filter "name=odoo" --format "{{ '{{' }}.Names{{ '}}' }}"
+  register: running_containers
+  changed_when: false
+
+- name: Affichage des conteneurs actifs
+  debug:
+    msg: "Conteneurs en cours : {{ running_containers.stdout_lines }}"
+
+- name: Récupération de l'IP publique
+  shell: curl -s ifconfig.me
+  register: public_ip
+  changed_when: false
+
+- name: Affichage de l'URL Odoo
+  debug:
+    msg: "Odoo est accessible sur http://{{ public_ip.stdout }}:{{ odoo_http_port }}"

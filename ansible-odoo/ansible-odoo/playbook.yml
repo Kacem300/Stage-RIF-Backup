@@ -1,0 +1,11 @@
+---
+- name: Configure Odoo server
+  hosts: odoo
+  become: yes
+  become_method: sudo
+  vars:
+    ansible_become_pass: "Stagiaire@2026"
+  roles:
+    - docker
+    # - security
+    - odoo

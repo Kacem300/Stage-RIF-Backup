@@ -1,0 +1,23 @@
+---
+- name: Installation d'UFW
+  apt:
+    name: ufw
+    state: present
+    update_cache: yes
+
+- name: Configuration des règles par défaut (refuser entrant)
+  ufw:
+    policy: deny
+    direction: incoming
+  when: ufw_default_deny
+
+- name: Autorisation SSH et Odoo
+  ufw:
+    rule: allow
+    port: "{{ item.port }}"
+    proto: "{{ item.proto }}"
+  loop: "{{ ufw_allowed_ports }}"
+
+- name: Activation d'UFW
+  ufw:
+    state: enabled

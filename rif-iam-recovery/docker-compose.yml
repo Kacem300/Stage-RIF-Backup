@@ -1,0 +1,67 @@
+services:
+  openldap:
+    image: osixia/openldap:1.5.0
+    restart: unless-stopped
+    environment:
+      LDAP_ORGANISATION: OpenSecureCloud
+      LDAP_DOMAIN: osc.local
+      LDAP_BASE_DN: "dc=osc,dc=local"
+      LDAP_ADMIN_PASSWORD: admin123
+      LDAP_TLS: "false"
+    volumes:
+      - ldap-data:/var/lib/ldap
+      - ldap-conf:/etc/ldap/slapd.d
+    ports:
+      - "389:389"
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak123
+    volumes:
+      - db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak"]
+      interval: 10s
+      retries: 10
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    restart: unless-stopped
+    command: start
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak123
+      KC_BOOTSTRAP_ADMIN_USERNAME: kcadmin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: kcadmin
+      KC_HOSTNAME: localhost
+      KC_HTTP_ENABLED: "true"
+      KC_PROXY: edge
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./keycloak/themes/rif:/opt/keycloak/themes/rif
+
+  lam:
+    image: ldapaccountmanager/lam:stable
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      LAM_PASSWORD: lam123
+    volumes:
+      - lam-data:/var/www/html/config
+
+volumes:
+  ldap-data:
+  ldap-conf:
+  db:
+  lam-data:

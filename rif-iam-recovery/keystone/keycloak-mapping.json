@@ -1,0 +1,34 @@
+[
+  {
+    "local": [
+      {
+        "user": {
+          "name": "{0}",
+          "domain": {"name": "Default"},
+          "type": "ephemeral"
+        },
+        "group": {"id": "a912404c82254beb9eef28104234012e"}
+      }
+    ],
+    "remote": [
+      {"type": "OIDC-preferred_username"},
+      {"type": "OIDC-groups", "any_one_of": ["openstack-admin"]}
+    ]
+  },
+  {
+    "local": [
+      {
+        "user": {
+          "name": "{0}",
+          "domain": {"name": "Default"},
+          "type": "ephemeral"
+        },
+        "group": {"id": "84e9423742b2425bbed9c15227ac1d08"}
+      }
+    ],
+    "remote": [
+      {"type": "OIDC-preferred_username"},
+      {"type": "OIDC-groups", "any_one_of": ["openstack-intern"]}
+    ]
+  }
+]
